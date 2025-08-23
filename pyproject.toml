@@ -1,0 +1,20 @@
+[project]
+name = "catodo"
+version = "0.0.1"
+description = "Todo list with categories for every activity in daily life"
+dependencies = [
+    "flask==3.1.1",
+    "Flask-WTF==1.2.2"
+]
+requires-python = "=3.12"
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
