@@ -1,6 +1,8 @@
-from datetime import datetime
+import json
+from pathlib import Path
 
 from core import config
+from core.tools import date, date_str
 
 
 class Object:
@@ -15,6 +17,15 @@ class Object:
         pass
 
 class Category(Object):
+    """
+    Catrgoty of user's tasks
+
+    Attributes:
+        timespent_ratio (float): Portion of the time that user plannes to spend for tasks in this category.
+            It strongly depends on "user.workday_hours". For example value "2/28" means that you planne to
+            spend 2 hours per week (7 days), if you have 4 hours of free time everyday (user.workday_hours). So it
+            might be imagined like "2 / (7 * 4)"
+    """
     
     def __init__(self, name: str, timespent_ratio: float):
         super().__init__()
@@ -47,7 +58,7 @@ class Task(Object):
     def __init__(self, desc: str, hours_cost: int):
         self.desc = desc
         self.hours_cost = hours_cost
-        self.completed = False
+        self.completed = None
 
     def to_dict(self):
         d = super().to_dict()
@@ -59,7 +70,7 @@ class Task(Object):
     def from_dict(data):
         t = Task(desc=data["desc"], hours_cost=data["hours_cost"])
         if "completed" in data:
-            t.completed = data["completed"]
+            t.completed = date(data["completed"])
         return t
 
 
@@ -67,13 +78,13 @@ class User(Object):
 
     def __init__(self, workday_hours: int =config.DEFAULT_WORKDAY_HOURS):
         self.workday_hours = workday_hours
-        self.last_calculation_date = datetime.today().date()
+        self.last_calculation_date = date()
         self.categories = []
 
     def to_dict(self):
         d = super().to_dict()
         d["workday_hours"] = self.workday_hours
-        d["last_calculation_date"] = self.last_calculation_date.strftime(config.S11N_DATE_FORMAT)
+        d["last_calculation_date"] = date_str(self.last_calculation_date)
         d["categories"] = []
         for category in self.categories:
             d["categories"].append(category.to_dict())
@@ -82,7 +93,25 @@ class User(Object):
     def from_dict(data):
         u = User()
         u.workday_hours = data["workday_hours"]
-        u.last_calculation_date = datetime.strptime(data["last_calculation_date"], config.S11N_DATE_FORMAT).date()
+        u.last_calculation_date = date(data["last_calculation_date"])
         for category_data in data["categories"]:
             u.categories.append(Category.from_dict(category_data))
         return u
+
+
+def serialize(*users: User):
+    root = []
+    for obj in users:
+        root.append(obj.to_dict())
+    return json.dumps(root)
+
+
+def deserialize(fname):
+    fpath = Path(fname)
+    users_data = None
+    with open(fpath, "r") as data:
+        users_data = json.load(data)
+    users = []
+    for user_data in users_data["users"]:
+        users.append(User.from_dict(user_data))
+    return users

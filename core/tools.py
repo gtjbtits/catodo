@@ -1,24 +1,10 @@
-import json
-from collections.abc import Iterable
-from pathlib import Path
+from datetime import datetime
 
-from core import objects
+from core import config
 
-
-def serialize(*users):
-    objects = users if isinstance(users, Iterable) else [users]
-    root = []
-    for obj in objects:
-        root.append(obj.to_dict())
-    return json.dumps(root)
+def date(date_str=None):
+    return datetime.strptime(date_str, config.S11N_DATE_FORMAT).date() if date_str else datetime.today().date()
 
 
-def deserialize(fname):
-    fpath = Path(fname)
-    users_data = None
-    with open(fpath, "r") as data:
-        users_data = json.load(data)
-    users = []
-    for user_data in users_data["users"]:
-        users.append(objects.User.from_dict(user_data))
-    return users
+def date_str(date):
+    return date.strftime(config.S11N_DATE_FORMAT)

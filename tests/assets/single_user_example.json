@@ -11,7 +11,8 @@
                     "tasks": [
                         {
                             "desc": "Поднять гирю",
-                            "hours_cost": 1
+                            "hours_cost": 1,
+                            "completed": "04.11.2025"
                         }
                     ]
                 }

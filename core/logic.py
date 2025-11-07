@@ -1,12 +1,14 @@
 import datetime
 
 from core.objects import User
-from core import config
 
 
 def calculate_timespent_for(*users: User, day: datetime.date =datetime.date.today()):
     for user in users:
-        available_time = (day.day - user.last_calculation_date.day) * config.DEFAULT_WORKDAY_HOURS
+        available_time = (day.day - user.last_calculation_date.day) * user.workday_hours
         if available_time > 0:
             for cat in user.categories:
                 cat.balance -= cat.timespent_ratio * available_time
+                for task in cat.tasks:
+                    if task.completed and user.last_calculation_date <= task.completed <= day:
+                        cat.balance += task.hours_cost
