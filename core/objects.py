@@ -22,9 +22,7 @@ class Category(Object):
 
     Attributes:
         timespent_ratio (float): Portion of the time that user plannes to spend for tasks in this category.
-            It strongly depends on "user.workday_hours". For example value "2/28" means that you planne to
-            spend 2 hours per week (7 days), if you have 4 hours of free time everyday (user.workday_hours). So it
-            might be imagined like "2 / (7 * 4)"
+            For example value "2/7" means that you planne to spend 2 hours per week (7 days).
     """
     
     def __init__(self, name: str, timespent_ratio: float):

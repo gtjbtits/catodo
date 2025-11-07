@@ -54,18 +54,18 @@ class TestCoreFunctions(unittest.TestCase):
         self.assertEqual(user.categories[0].balance, config.DEFAULT_BALANCE)
 
     def test_calculate_timespent_for_next_day_for_multiple_cat_without_tasks(self):
-        cat1 = Category(name="Спорт", timespent_ratio=1/120)
-        cat2 = Category(name="Математика", timespent_ratio=4/28)
+        cat1 = Category(name="Спорт", timespent_ratio=1/30)
+        cat2 = Category(name="Математика", timespent_ratio=4/7)
         user = User(workday_hours=2)
         user.categories += [cat1, cat2]
         day = date() + timedelta(days=1)
         calculate_timespent_for(user, day=day)
-        self.assertEqual(cat1.balance, -1/60)
-        self.assertEqual(cat2.balance, -4/14)
+        self.assertEqual(cat1.balance, -1/30)
+        self.assertEqual(cat2.balance, -4/7)
 
     def test_calculate_timespent_for_week_for_single_cat_with_complete_task(self):
         user = User(workday_hours=4)
-        user.categories.append(Category(name="Программирование", timespent_ratio=2/(7*4)))
+        user.categories.append(Category(name="Программирование", timespent_ratio=2/7))
         user.categories[0].tasks.append(Task(desc="Дописать базовый функционал catodo", hours_cost=2))
         user.categories[0].tasks[0].completed = date() + timedelta(days=3)
         day = date() + timedelta(days=7)
