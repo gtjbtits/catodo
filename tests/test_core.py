@@ -36,7 +36,7 @@ class TestCoreFunctions(unittest.TestCase):
             self.assertEqual(d10d_user["last_calculation_date"], user.last_calculation_date.strftime(config.S11N_DATE_FORMAT))
 
     def test_deserialize_single_user(self):
-        users = deserialize("./tests/assets/example_serialized_data.json")
+        users = deserialize("./tests/assets/single_user_example.json")
         user = users[0]
         self.assertEqual(user.workday_hours, 2)
         self.assertEqual(user.last_calculation_date, datetime.strptime("28.08.2025", config.S11N_DATE_FORMAT).date())
@@ -47,18 +47,19 @@ class TestCoreFunctions(unittest.TestCase):
         self.assertEqual(user.categories[0].tasks[0].hours_cost, 1)
 
     def test_calculate_timespent_for_same_day_0_for_single_cat(self):
-        cat1 = Category(name="Спорт", timespent_ratio=1/6)
         user = User(workday_hours=2)
-        calculate_timespent_for(user=user, cats=[cat1], day=datetime.today().date())
-        self.assertEqual(cat1.balance, config.DEFAULT_BALANCE)
+        user.categories.append(Category(name="Спорт", timespent_ratio=1/6))
+        calculate_timespent_for(user, day=datetime.today().date())
+        self.assertEqual(user.categories[0].balance, config.DEFAULT_BALANCE)
 
     def test_calculate_timespent_for_same_day_1_for_multiple_cat(self):
         cat1 = Category(name="Спорт", timespent_ratio=1/120)
         cat2 = Category(name="Математика", timespent_ratio=4/28)
         user = User(workday_hours=2)
+        user.categories += [cat1, cat2]
         day = datetime.today().date()
         day = day.replace(day=day.day + 1)
-        calculate_timespent_for(user=user, cats=[cat1, cat2], day=day)
+        calculate_timespent_for(user, day=day)
         self.assertEqual(cat1.balance, -1/30)
         self.assertEqual(cat2.balance, -4/7)
 
