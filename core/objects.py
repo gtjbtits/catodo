@@ -37,17 +37,18 @@ class Category(Object):
         d["name"] = self.name
         d["timespent_ratio"] = self.timespent_ratio
         d["balance"] = self.balance
-        d["tasts"] = []
+        d["tasks"] = []
         for task in self.tasks:
-            d["tasts"].append(task.to_dict())
+            d["tasks"].append(task.to_dict())
         return d
     
     def from_dict(data):
         c = Category(name=data["name"], timespent_ratio=data["timespent_ratio"])
         c.balance = data["balance"]
         c.tasks = []
-        for task_data in data["tasks"]:
-            c.tasks.append(Task.from_dict(task_data))
+        if "tasks" in data:
+            for task_data in data["tasks"]:
+                c.tasks.append(Task.from_dict(task_data))
         return c
 
 
@@ -62,7 +63,7 @@ class Task(Object):
         d = super().to_dict()
         d["desc"] = self.desc
         d["hours_cost"] = self.hours_cost
-        d["completed"] = self.completed
+        d["completed"] = date_str(self.completed)
         return d
     
     def from_dict(data):
@@ -101,7 +102,7 @@ def serialize(*users: User):
     root = []
     for obj in users:
         root.append(obj.to_dict())
-    return json.dumps(root)
+    return json.dumps(root, ensure_ascii=False)
 
 
 def deserialize(fname):
@@ -110,6 +111,6 @@ def deserialize(fname):
     with open(fpath, "r") as data:
         users_data = json.load(data)
     users = []
-    for user_data in users_data["users"]:
+    for user_data in users_data:
         users.append(User.from_dict(user_data))
     return users

@@ -12,3 +12,4 @@ def calculate_timespent_for(*users: User, day: datetime.date =datetime.date.toda
                 for task in cat.tasks:
                     if task.completed and user.last_calculation_date <= task.completed <= day:
                         cat.balance += task.hours_cost
+            user.last_calculation_date = day
